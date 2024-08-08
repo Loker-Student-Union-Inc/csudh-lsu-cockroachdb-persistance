@@ -38,17 +38,17 @@ public class Activity extends Common {
     @JsonView(View.Json.class)
     private String activity;
 
-    @Column(name = "CATEGORY", updatable = true, nullable = false)
+    @Column(name = "CATEGORY", updatable = true, nullable = false)  // Pool table, Console(Ps5, ps4, xbox, switch) and, board games
     @Getter @Setter
     @JsonView(View.Json.class)
     private String category;
 
-    @Column(name = "PRICE", updatable = true, nullable = false)
+    @Column(name = "PRICE", updatable = true)
     @Getter @Setter
     @JsonView(View.Json.class)
-    private String price;   // price for 30 minutes
+    private Integer price;   // price for 30 minutes
 
-    @Column(name = "IMAGE_LOCATION", updatable = true, nullable = false)
+    @Column(name = "IMAGE_LOCATION", updatable = true)
     @Getter @Setter
     @JsonView(View.Json.class)
     private String imageLocation;   // image location pointing to dropping

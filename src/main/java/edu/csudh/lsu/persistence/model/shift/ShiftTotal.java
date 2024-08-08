@@ -9,12 +9,15 @@ import groovy.transform.ToString;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Date;
+import java.sql.Time;
+import java.time.LocalTime;
 import java.util.UUID;
 
 @ToString
@@ -47,8 +50,8 @@ public class ShiftTotal extends Common {
     @Getter
     @Setter
     @JsonView(View.Json.class)
-    @Column(name = "GAME", nullable = false)
-    private String game;
+    @Column(name = "ACTIVITY", nullable = false)
+    private String activity;
 
     @Getter
     @Setter
@@ -65,13 +68,23 @@ public class ShiftTotal extends Common {
     @Getter
     @Setter
     @JsonView(View.Json.class)
+    @Column(name = "START_TIME", nullable = false)
+    private Time startTime;
+
+    @Getter
+    @Setter
+    @JsonView(View.Json.class)
     @Column(name = "DURATION", nullable = false)
     private String duration;
 
     @Getter
     @Setter
     @JsonView(View.Json.class)
-    @Column(name = "ATTENDANT_CLOCKED_IN_DATE", nullable = false)
-    private Date clockedInDate;
+    @Column(name = "ATTENDANT_STATUS", nullable = false) // IN or OUT values
+    private String clockedIn;
 
+    @PrePersist
+    protected void onCreate() {
+        this.startTime = Time.valueOf(LocalTime.now());
+    }
 }
