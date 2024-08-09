@@ -6,17 +6,15 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import edu.csudh.lsu.persistence.model.View;
 import edu.csudh.lsu.persistence.model.common.Common;
 import groovy.transform.ToString;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Date;
 import java.sql.Time;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
 
@@ -32,6 +30,11 @@ public class ShiftTotal extends Common {
     @Setter
     @JsonView(View.Json.class)
     @Column(name = "ID", nullable = false)
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
     @Id
     private UUID id;
 
@@ -57,7 +60,7 @@ public class ShiftTotal extends Common {
     @Setter
     @JsonView(View.Json.class)
     @Column(name = "COST", nullable = false)
-    private String cost;
+    private Float cost;
 
     @Getter
     @Setter
@@ -66,10 +69,14 @@ public class ShiftTotal extends Common {
     private String paymentMode;
 
     @Getter
-    @Setter
     @JsonView(View.Json.class)
     @Column(name = "START_TIME", nullable = false)
     private Time startTime;
+
+    @Getter
+    @JsonView(View.Json.class)
+    @Column(name = "DATE", nullable = false)
+    private Date date;
 
     @Getter
     @Setter
@@ -77,14 +84,9 @@ public class ShiftTotal extends Common {
     @Column(name = "DURATION", nullable = false)
     private String duration;
 
-    @Getter
-    @Setter
-    @JsonView(View.Json.class)
-    @Column(name = "ATTENDANT_STATUS", nullable = false) // IN or OUT values
-    private String clockedIn;
-
     @PrePersist
-    protected void onCreate() {
+    private void onCreate() {
         this.startTime = Time.valueOf(LocalTime.now());
+        this.date = Date.valueOf(LocalDate.now());
     }
 }

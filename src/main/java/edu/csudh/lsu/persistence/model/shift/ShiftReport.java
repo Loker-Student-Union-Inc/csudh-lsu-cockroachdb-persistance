@@ -6,16 +6,17 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import edu.csudh.lsu.persistence.model.View;
 import edu.csudh.lsu.persistence.model.common.Common;
 import groovy.transform.ToString;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Date;
 import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.UUID;
 
 @ToString
 @Entity
@@ -27,9 +28,15 @@ public class ShiftReport extends Common {
 
     @Getter
     @Setter
+    @JsonView(View.Json.class)
+    @Column(name = "SHIFT_REPORT_TD", nullable = false)
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
     @Id
-    @Column(name = "SHIFT_ID", nullable = false)
-    private String shiftId; // user id + date + shift #
+    private UUID shiftReportId;
 
     @Getter
     @Setter
@@ -64,20 +71,20 @@ public class ShiftReport extends Common {
     @Getter
     @Setter
     @JsonView(View.Json.class)
-    @Column(name = "RECONCILOR_SIGN", nullable = false)
+    @Column(name = "ATTENDANT_SIGN", nullable = false)
     private String attendantSign;
 
     @Getter
     @Setter
     @JsonView(View.Json.class)
     @Column(name = "REVENUE_IN_CARD", nullable = false)
-    private String revenueInCard;
+    private Float revenueInCard;
 
     @Getter
     @Setter
     @JsonView(View.Json.class)
     @Column(name = "REVENUE_IN_CASH", nullable = false)
-    private String revenueInCash;
+    private Float revenueInCash;
 
     @Getter
     @Setter
@@ -89,5 +96,11 @@ public class ShiftReport extends Common {
     @Setter
     @JsonView(View.Json.class)
     @Column(name = "OPENING_BALANCE", nullable = false)
-    private String openingBalance;
+    private Float openingBalance;
+
+    @PrePersist
+    private void onCreate() {
+        this.closingShiftTime = Time.valueOf(LocalTime.now());
+        this.closingShiftDate = Date.valueOf(LocalDate.now());
+    }
 }
