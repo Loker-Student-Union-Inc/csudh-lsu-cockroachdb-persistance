@@ -4,6 +4,7 @@ import edu.csudh.lsu.persistence.constants.PersistenceConstants;
 import edu.csudh.lsu.persistence.exception.PersistenceException;
 import edu.csudh.lsu.persistence.model.shift.ShiftReport;
 import edu.csudh.lsu.persistence.repository.gamesroom.shift.ShiftReportRepository;
+import edu.csudh.lsu.persistence.utils.PersistenceStringUtils;
 import edu.csudh.lsu.persistence.utils.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.TransactionException;
@@ -64,10 +65,10 @@ public class ShiftReportService {
                 var currentTime = TimeUtils.getFormattedCurrentPSTTime();
                 Date currentDate = new Date(currentTime.getTime());
 
-//                shiftReport.setCreatedTime(currentTime);
+                shiftReport.setCreatedTime(new Time(TimeUtils.getFormattedCurrentPSTTime().getTime()));
                 shiftReport.setCreatedDate(currentDate);
                 shiftReport.setLastUpdatedDate(currentDate);
-//                shiftReport.setLastUpdatedTime(currentTime);
+                shiftReport.setLastUpdatedTime(new Time(TimeUtils.getFormattedCurrentPSTTime().getTime()));
 
                 shiftReportRepository.upsertShiftReport(
                         shiftReport.getClosingShiftDate(), shiftReport.getClosingShiftTime(), shiftReport.getAttendantName(),
@@ -158,8 +159,6 @@ public class ShiftReportService {
         }
     }
 
-    // Similar methods can be created for updateAttendantName, updateReconcilorName, updateReconcilorSign, updateAttendantSign, updateRevenueInCard, updateRevenueInCash, updateShiftTotal, updateOpeningBalance following the same pattern.
-
     /**
      * Deletes a ShiftReport record by its ID.
      *
@@ -182,6 +181,290 @@ public class ShiftReportService {
             throw exception;
         } catch (Exception exception) {
             log.error("An unexpected error occurred while deleting ShiftReport with ID: {}", shiftReportId, exception);
+            throw new PersistenceException(PersistenceConstants.PERSISTENCE_EXCEPTION, exception.getMessage());
+        }
+    }
+
+    /**
+     * Updates the attendant name for a ShiftReport record.
+     *
+     * @param shiftReportId  The ID of the ShiftReport record to update.
+     * @param attendantName  The new attendant name.
+     * @param lastUpdatedBy  The user who last updated the record.
+     * @param accessedBy     The user who accessed the record.
+     * @throws TransactionException                  if a transaction error occurs during the operation.
+     * @throws JDBCConnectionException               if there is a JDBC connection issue.
+     * @throws JpaSystemException                    if there is a JPA system error.
+     * @throws DataAccessResourceFailureException    if a data access resource fails.
+     * @throws PersistenceException                  if a general persistence error occurs.
+     */
+    public void updateAttendantName(UUID shiftReportId, String attendantName, String lastUpdatedBy, String accessedBy)
+            throws TransactionException, JDBCConnectionException, JpaSystemException, DataAccessResourceFailureException {
+
+        try {
+            if (PersistenceStringUtils.isNotNullOrEmpty(attendantName)) {
+                log.debug("Attempting to update attendant name for ShiftReport ID: {}", shiftReportId);
+                Date currentDate = new Date(TimeUtils.getFormattedCurrentPSTTime().getTime());
+                Time currentTime = new Time(TimeUtils.getFormattedCurrentPSTTime().getTime());
+
+                shiftReportRepository.updateAttendantName(shiftReportId, attendantName, currentDate, currentTime, lastUpdatedBy, accessedBy);
+                log.info("Attendant name updated successfully for ShiftReport ID: {}", shiftReportId);
+            } else {
+                log.warn("Attendant name is null or empty. Update aborted for ShiftReport ID: {}", shiftReportId);
+            }
+        } catch (DataAccessResourceFailureException | JDBCConnectionException | JpaSystemException
+                 | TransactionException exception) {
+            log.error("Data access or transaction failure while updating attendant name for ShiftReport ID: {}", shiftReportId, exception);
+            throw exception;
+        } catch (Exception exception) {
+            log.error("An unexpected error occurred while updating attendant name for ShiftReport ID: {}", shiftReportId, exception);
+            throw new PersistenceException(PersistenceConstants.PERSISTENCE_EXCEPTION, exception.getMessage());
+        }
+    }
+
+    /**
+     * Updates the reconcilor name for a ShiftReport record.
+     *
+     * @param shiftReportId  The ID of the ShiftReport record to update.
+     * @param reconcilorName The new reconcilor name.
+     * @param lastUpdatedBy  The user who last updated the record.
+     * @param accessedBy     The user who accessed the record.
+     * @throws TransactionException                  if a transaction error occurs during the operation.
+     * @throws JDBCConnectionException               if there is a JDBC connection issue.
+     * @throws JpaSystemException                    if there is a JPA system error.
+     * @throws DataAccessResourceFailureException    if a data access resource fails.
+     * @throws PersistenceException                  if a general persistence error occurs.
+     */
+    public void updateReconcilorName(UUID shiftReportId, String reconcilorName, String lastUpdatedBy, String accessedBy)
+            throws TransactionException, JDBCConnectionException, JpaSystemException, DataAccessResourceFailureException {
+
+        try {
+            if (PersistenceStringUtils.isNotNullOrEmpty(reconcilorName)) {
+                log.debug("Attempting to update reconcilor name for ShiftReport ID: {}", shiftReportId);
+                Date currentDate = new Date(TimeUtils.getFormattedCurrentPSTTime().getTime());
+                Time currentTime = new Time(TimeUtils.getFormattedCurrentPSTTime().getTime());
+
+                shiftReportRepository.updateReconcilorName(shiftReportId, reconcilorName, currentDate, currentTime, lastUpdatedBy, accessedBy);
+                log.info("Reconcilor name updated successfully for ShiftReport ID: {}", shiftReportId);
+            } else {
+                log.warn("Reconcilor name is null or empty. Update aborted for ShiftReport ID: {}", shiftReportId);
+            }
+        } catch (DataAccessResourceFailureException | JDBCConnectionException | JpaSystemException
+                 | TransactionException exception) {
+            log.error("Data access or transaction failure while updating reconcilor name for ShiftReport ID: {}", shiftReportId, exception);
+            throw exception;
+        } catch (Exception exception) {
+            log.error("An unexpected error occurred while updating reconcilor name for ShiftReport ID: {}", shiftReportId, exception);
+            throw new PersistenceException(PersistenceConstants.PERSISTENCE_EXCEPTION, exception.getMessage());
+        }
+    }
+
+    /**
+     * Updates the reconcilor sign for a ShiftReport record.
+     *
+     * @param shiftReportId  The ID of the ShiftReport record to update.
+     * @param reconcilorSign The new reconcilor sign.
+     * @param lastUpdatedBy  The user who last updated the record.
+     * @param accessedBy     The user who accessed the record.
+     * @throws TransactionException                  if a transaction error occurs during the operation.
+     * @throws JDBCConnectionException               if there is a JDBC connection issue.
+     * @throws JpaSystemException                    if there is a JPA system error.
+     * @throws DataAccessResourceFailureException    if a data access resource fails.
+     * @throws PersistenceException                  if a general persistence error occurs.
+     */
+    public void updateReconcilorSign(UUID shiftReportId, String reconcilorSign, String lastUpdatedBy, String accessedBy)
+            throws TransactionException, JDBCConnectionException, JpaSystemException, DataAccessResourceFailureException {
+
+        try {
+            if (PersistenceStringUtils.isNotNullOrEmpty(reconcilorSign)) {
+                log.debug("Attempting to update reconcilor sign for ShiftReport ID: {}", shiftReportId);
+                Date currentDate = new Date(TimeUtils.getFormattedCurrentPSTTime().getTime());
+                Time currentTime = new Time(TimeUtils.getFormattedCurrentPSTTime().getTime());
+
+                shiftReportRepository.updateReconcilorSign(shiftReportId, reconcilorSign, currentDate, currentTime, lastUpdatedBy, accessedBy);
+                log.info("Reconcilor sign updated successfully for ShiftReport ID: {}", shiftReportId);
+            } else {
+                log.warn("Reconcilor sign is null or empty. Update aborted for ShiftReport ID: {}", shiftReportId);
+            }
+        } catch (DataAccessResourceFailureException | JDBCConnectionException | JpaSystemException
+                 | TransactionException exception) {
+            log.error("Data access or transaction failure while updating reconcilor sign for ShiftReport ID: {}", shiftReportId, exception);
+            throw exception;
+        } catch (Exception exception) {
+            log.error("An unexpected error occurred while updating reconcilor sign for ShiftReport ID: {}", shiftReportId, exception);
+            throw new PersistenceException(PersistenceConstants.PERSISTENCE_EXCEPTION, exception.getMessage());
+        }
+    }
+
+    /**
+     * Updates the attendant sign for a ShiftReport record.
+     *
+     * @param shiftReportId  The ID of the ShiftReport record to update.
+     * @param attendantSign  The new attendant sign.
+     * @param lastUpdatedBy  The user who last updated the record.
+     * @param accessedBy     The user who accessed the record.
+     * @throws TransactionException                  if a transaction error occurs during the operation.
+     * @throws JDBCConnectionException               if there is a JDBC connection issue.
+     * @throws JpaSystemException                    if there is a JPA system error.
+     * @throws DataAccessResourceFailureException    if a data access resource fails.
+     * @throws PersistenceException                  if a general persistence error occurs.
+     */
+    public void updateAttendantSign(UUID shiftReportId, String attendantSign, String lastUpdatedBy, String accessedBy)
+            throws TransactionException, JDBCConnectionException, JpaSystemException, DataAccessResourceFailureException {
+
+        try {
+            if (PersistenceStringUtils.isNotNullOrEmpty(attendantSign)) {
+                log.debug("Attempting to update attendant sign for ShiftReport ID: {}", shiftReportId);
+                Date currentDate = new Date(TimeUtils.getFormattedCurrentPSTTime().getTime());
+                Time currentTime = new Time(TimeUtils.getFormattedCurrentPSTTime().getTime());
+
+                shiftReportRepository.updateAttendantSign(shiftReportId, attendantSign, currentDate, currentTime, lastUpdatedBy, accessedBy);
+                log.info("Attendant sign updated successfully for ShiftReport ID: {}", shiftReportId);
+            } else {
+                log.warn("Attendant sign is null or empty. Update aborted for ShiftReport ID: {}", shiftReportId);
+            }
+        } catch (DataAccessResourceFailureException | JDBCConnectionException | JpaSystemException
+                 | TransactionException exception) {
+            log.error("Data access or transaction failure while updating attendant sign for ShiftReport ID: {}", shiftReportId, exception);
+            throw exception;
+        } catch (Exception exception) {
+            log.error("An unexpected error occurred while updating attendant sign for ShiftReport ID: {}", shiftReportId, exception);
+            throw new PersistenceException(PersistenceConstants.PERSISTENCE_EXCEPTION, exception.getMessage());
+        }
+    }
+
+    /**
+     * Updates the revenue in card for a ShiftReport record.
+     *
+     * @param shiftReportId  The ID of the ShiftReport record to update.
+     * @param revenueInCard  The new revenue in card.
+     * @param lastUpdatedBy  The user who last updated the record.
+     * @param accessedBy     The user who accessed the record.
+     * @throws TransactionException                  if a transaction error occurs during the operation.
+     * @throws JDBCConnectionException               if there is a JDBC connection issue.
+     * @throws JpaSystemException                    if there is a JPA system error.
+     * @throws DataAccessResourceFailureException    if a data access resource fails.
+     * @throws PersistenceException                  if a general persistence error occurs.
+     */
+    public void updateRevenueInCard(UUID shiftReportId, Float revenueInCard, String lastUpdatedBy, String accessedBy)
+            throws TransactionException, JDBCConnectionException, JpaSystemException, DataAccessResourceFailureException {
+
+        try {
+            log.debug("Attempting to update revenue in card for ShiftReport ID: {}", shiftReportId);
+            Date currentDate = new Date(TimeUtils.getFormattedCurrentPSTTime().getTime());
+            Time currentTime = new Time(TimeUtils.getFormattedCurrentPSTTime().getTime());
+
+            shiftReportRepository.updateRevenueInCard(shiftReportId, revenueInCard, currentDate, currentTime, lastUpdatedBy, accessedBy);
+            log.info("Revenue in card updated successfully for ShiftReport ID: {}", shiftReportId);
+        } catch (DataAccessResourceFailureException | JDBCConnectionException | JpaSystemException
+                 | TransactionException exception) {
+            log.error("Data access or transaction failure while updating revenue in card for ShiftReport ID: {}", shiftReportId, exception);
+            throw exception;
+        } catch (Exception exception) {
+            log.error("An unexpected error occurred while updating revenue in card for ShiftReport ID: {}", shiftReportId, exception);
+            throw new PersistenceException(PersistenceConstants.PERSISTENCE_EXCEPTION, exception.getMessage());
+        }
+    }
+
+    /**
+     * Updates the revenue in cash for a ShiftReport record.
+     *
+     * @param shiftReportId  The ID of the ShiftReport record to update.
+     * @param revenueInCash  The new revenue in cash.
+     * @param lastUpdatedBy  The user who last updated the record.
+     * @param accessedBy     The user who accessed the record.
+     * @throws TransactionException                  if a transaction error occurs during the operation.
+     * @throws JDBCConnectionException               if there is a JDBC connection issue.
+     * @throws JpaSystemException                    if there is a JPA system error.
+     * @throws DataAccessResourceFailureException    if a data access resource fails.
+     * @throws PersistenceException                  if a general persistence error occurs.
+     */
+    public void updateRevenueInCash(UUID shiftReportId, Float revenueInCash, String lastUpdatedBy, String accessedBy)
+            throws TransactionException, JDBCConnectionException, JpaSystemException, DataAccessResourceFailureException {
+
+        try {
+            log.debug("Attempting to update revenue in cash for ShiftReport ID: {}", shiftReportId);
+            Date currentDate = new Date(TimeUtils.getFormattedCurrentPSTTime().getTime());
+            Time currentTime = new Time(TimeUtils.getFormattedCurrentPSTTime().getTime());
+
+            shiftReportRepository.updateRevenueInCash(shiftReportId, revenueInCash, currentDate, currentTime, lastUpdatedBy, accessedBy);
+            log.info("Revenue in cash updated successfully for ShiftReport ID: {}", shiftReportId);
+        } catch (DataAccessResourceFailureException | JDBCConnectionException | JpaSystemException
+                 | TransactionException exception) {
+            log.error("Data access or transaction failure while updating revenue in cash for ShiftReport ID: {}", shiftReportId, exception);
+            throw exception;
+        } catch (Exception exception) {
+            log.error("An unexpected error occurred while updating revenue in cash for ShiftReport ID: {}", shiftReportId, exception);
+            throw new PersistenceException(PersistenceConstants.PERSISTENCE_EXCEPTION, exception.getMessage());
+        }
+    }
+
+    /**
+     * Updates the shift total for a ShiftReport record.
+     *
+     * @param shiftReportId  The ID of the ShiftReport record to update.
+     * @param shiftTotal     The new shift total.
+     * @param lastUpdatedBy  The user who last updated the record.
+     * @param accessedBy     The user who accessed the record.
+     * @throws TransactionException                  if a transaction error occurs during the operation.
+     * @throws JDBCConnectionException               if there is a JDBC connection issue.
+     * @throws JpaSystemException                    if there is a JPA system error.
+     * @throws DataAccessResourceFailureException    if a data access resource fails.
+     * @throws PersistenceException                  if a general persistence error occurs.
+     */
+    public void updateShiftTotal(UUID shiftReportId, String shiftTotal, String lastUpdatedBy, String accessedBy)
+            throws TransactionException, JDBCConnectionException, JpaSystemException, DataAccessResourceFailureException {
+
+        try {
+            if (PersistenceStringUtils.isNotNullOrEmpty(shiftTotal)) {
+                log.debug("Attempting to update shift total for ShiftReport ID: {}", shiftReportId);
+                Date currentDate = new Date(TimeUtils.getFormattedCurrentPSTTime().getTime());
+                Time currentTime = new Time(TimeUtils.getFormattedCurrentPSTTime().getTime());
+
+                shiftReportRepository.updateShiftTotal(shiftReportId, shiftTotal, currentDate, currentTime, lastUpdatedBy, accessedBy);
+                log.info("Shift total updated successfully for ShiftReport ID: {}", shiftReportId);
+            } else {
+                log.warn("Shift total is null or empty. Update aborted for ShiftReport ID: {}", shiftReportId);
+            }
+        } catch (DataAccessResourceFailureException | JDBCConnectionException | JpaSystemException
+                 | TransactionException exception) {
+            log.error("Data access or transaction failure while updating shift total for ShiftReport ID: {}", shiftReportId, exception);
+            throw exception;
+        } catch (Exception exception) {
+            log.error("An unexpected error occurred while updating shift total for ShiftReport ID: {}", shiftReportId, exception);
+            throw new PersistenceException(PersistenceConstants.PERSISTENCE_EXCEPTION, exception.getMessage());
+        }
+    }
+
+    /**
+     * Updates the opening balance for a ShiftReport record.
+     *
+     * @param shiftReportId  The ID of the ShiftReport record to update.
+     * @param openingBalance The new opening balance.
+     * @param lastUpdatedBy  The user who last updated the record.
+     * @param accessedBy     The user who accessed the record.
+     * @throws TransactionException                  if a transaction error occurs during the operation.
+     * @throws JDBCConnectionException               if there is a JDBC connection issue.
+     * @throws JpaSystemException                    if there is a JPA system error.
+     * @throws DataAccessResourceFailureException    if a data access resource fails.
+     * @throws PersistenceException                  if a general persistence error occurs.
+     */
+    public void updateOpeningBalance(UUID shiftReportId, Float openingBalance, String lastUpdatedBy, String accessedBy)
+            throws TransactionException, JDBCConnectionException, JpaSystemException, DataAccessResourceFailureException {
+
+        try {
+            log.debug("Attempting to update opening balance for ShiftReport ID: {}", shiftReportId);
+            Date currentDate = new Date(TimeUtils.getFormattedCurrentPSTTime().getTime());
+            Time currentTime = new Time(TimeUtils.getFormattedCurrentPSTTime().getTime());
+
+            shiftReportRepository.updateOpeningBalance(shiftReportId, openingBalance, currentDate, currentTime, lastUpdatedBy, accessedBy);
+            log.info("Opening balance updated successfully for ShiftReport ID: {}", shiftReportId);
+        } catch (DataAccessResourceFailureException | JDBCConnectionException | JpaSystemException
+                 | TransactionException exception) {
+            log.error("Data access or transaction failure while updating opening balance for ShiftReport ID: {}", shiftReportId, exception);
+            throw exception;
+        } catch (Exception exception) {
+            log.error("An unexpected error occurred while updating opening balance for ShiftReport ID: {}", shiftReportId, exception);
             throw new PersistenceException(PersistenceConstants.PERSISTENCE_EXCEPTION, exception.getMessage());
         }
     }

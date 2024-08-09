@@ -1,7 +1,5 @@
 package edu.csudh.lsu.persistence.utils;
 
-import org.springframework.util.StringUtils;
-
 import java.util.Objects;
 
 /**
@@ -28,6 +26,6 @@ public class PersistenceStringUtils {
     }
 
     public static boolean isNotNullOrEmpty(String value) {
-        return Objects.isNull(value) && !value.isEmpty();
+        return Objects.nonNull(value) && !value.isEmpty();
     }
 }
