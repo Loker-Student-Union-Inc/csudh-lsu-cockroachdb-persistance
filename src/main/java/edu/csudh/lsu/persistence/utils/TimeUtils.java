@@ -31,7 +31,7 @@ public class TimeUtils {
     private static final String PST_TIMEZONE = "America/Los_Angeles";
     private static final String UTC_TIMEZONE = "UTC";
 
-    private TimeUtils() {
+    TimeUtils() {
         throw new IllegalStateException("Utility Class");
     }
 
