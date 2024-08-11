@@ -3,19 +3,22 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - master       # Triggers workflow on pushes to the master branch.
-      - develop      # Triggers workflow on pushes to the develop branch.
-      - feature/*    # Triggers workflow on pushes to any branch starting with 'feature/'.
-      - release/*    # Triggers workflow on pushes to any branch starting with 'release/'.
-      - bugfix/*     # Triggers workflow on pushes to any branch starting with 'bugfix/'.
+      - master
+      - develop
+      - feature/*
+      - release/*
+      - bugfix/*
   pull_request:
     branches:
-      - master       # Triggers workflow on pull requests targeting the master branch.
-      - develop      # Triggers workflow on pull requests targeting the develop branch.
-      - feature/*    # Triggers workflow on pull requests targeting any branch starting with 'feature/'.
-      - release/*    # Triggers workflow on pull requests targeting any branch starting with 'release/'.
-      - bugfix/*     # Triggers workflow on pull requests targeting any branch starting with 'bugfix/'.
-  workflow_dispatch:  # Allows the workflow to be manually triggered from the GitHub Actions tab.
+      - master
+      - develop
+      - feature/*
+      - release/*
+      - bugfix/*
+  workflow_dispatch:
+
+permissions:
+  contents: write  # Ensure the GitHub Actions bot can write to the repository (including pushing tags)
 
 jobs:
   build:
@@ -53,8 +56,8 @@ jobs:
 
   tag:
     runs-on: ubuntu-latest
-    needs: build  # This job will only run if the 'build' job is successful
-    if: github.ref == 'refs/heads/master'  # Only run this job on the master branch
+    needs: build
+    if: github.ref == 'refs/heads/master'
 
     steps:
       - name: Checkout code
@@ -65,20 +68,30 @@ jobs:
         with:
           java-version: '17'
 
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: build-artifacts
-
-      - name: Generate version tag
-        id: tag_version
+      - name: Bump version and create tag
+        id: bump_version
         run: |
-          VERSION="v$(date +'%Y%m%d%H%M%S')"
-          echo "New tag version: $VERSION"
-          git tag $VERSION
-          git push origin $VERSION
+          # Extract the latest tag and bump it
+          LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+          echo "Latest tag: $LATEST_TAG"
+
+          # Split the latest version into its components
+          VERSION_MAJOR=$(echo $LATEST_TAG | cut -d. -f1 | tr -d 'v')
+          VERSION_MINOR=$(echo $LATEST_TAG | cut -d. -f2)
+          VERSION_PATCH=$(echo $LATEST_TAG | cut -d. -f3)
+
+          # Increment the patch version (or change logic to increment minor/major as needed)
+          VERSION_PATCH=$((VERSION_PATCH + 1))
+
+          # Create the new version tag
+          NEW_TAG="v${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
+          echo "New tag version: $NEW_TAG"
+
+          # Tag the commit
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
         env:
           GITHUB_TOKEN: ${{ secrets.LSU_ACTIONS_PAT }}
 
       - name: Notify success
-        run: echo "Build and tag ${{ steps.tag_version.outputs.version }} successful."
+        run: echo "Build and tag ${{ steps.bump_version.outputs.NEW_TAG }} successful."
