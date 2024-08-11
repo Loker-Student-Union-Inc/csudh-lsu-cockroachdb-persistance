@@ -3,19 +3,19 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - master
-      - develop
-      - feature/*
-      - release/*
-      - bugfix/*
+      - master       # Triggers workflow on pushes to the master branch.
+      - develop      # Triggers workflow on pushes to the develop branch.
+      - feature/*    # Triggers workflow on pushes to any branch starting with 'feature/'.
+      - release/*    # Triggers workflow on pushes to any branch starting with 'release/'.
+      - bugfix/*     # Triggers workflow on pushes to any branch starting with 'bugfix/'.
   pull_request:
     branches:
-      - master
-      - develop
-      - feature/*
-      - release/*
-      - bugfix/*
-  workflow_dispatch:
+      - master       # Triggers workflow on pull requests targeting the master branch.
+      - develop      # Triggers workflow on pull requests targeting the develop branch.
+      - feature/*    # Triggers workflow on pull requests targeting any branch starting with 'feature/'.
+      - release/*    # Triggers workflow on pull requests targeting any branch starting with 'release/'.
+      - bugfix/*     # Triggers workflow on pull requests targeting any branch starting with 'bugfix/'.
+  workflow_dispatch:  # Allows the workflow to be manually triggered from the GitHub Actions tab.
 
 permissions:
   contents: write  # Ensure the GitHub Actions bot can write to the repository (including pushing tags)
@@ -71,8 +71,8 @@ jobs:
       - name: Bump version and create tag
         id: bump_version
         run: |
-          # Extract the latest tag and bump it
-          LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+          # Try to get the latest tag
+          LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1` || echo "v0.0.0")
           echo "Latest tag: $LATEST_TAG"
 
           # Split the latest version into its components
