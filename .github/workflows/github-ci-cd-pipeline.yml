@@ -1,0 +1,84 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master       # Triggers workflow on pushes to the master branch.
+      - develop      # Triggers workflow on pushes to the develop branch.
+      - feature/*    # Triggers workflow on pushes to any branch starting with 'feature/'.
+      - release/*    # Triggers workflow on pushes to any branch starting with 'release/'.
+      - bugfix/*     # Triggers workflow on pushes to any branch starting with 'bugfix/'.
+  pull_request:
+    branches:
+      - master       # Triggers workflow on pull requests targeting the master branch.
+      - develop      # Triggers workflow on pull requests targeting the develop branch.
+      - feature/*    # Triggers workflow on pull requests targeting any branch starting with 'feature/'.
+      - release/*    # Triggers workflow on pull requests targeting any branch starting with 'release/'.
+      - bugfix/*     # Triggers workflow on pull requests targeting any branch starting with 'bugfix/'.
+  workflow_dispatch:  # Allows the workflow to be manually triggered from the GitHub Actions tab.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: '17'
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Run tests with coverage
+        run: ./gradlew test jacocoTestReport
+
+      - name: Verify test coverage
+        run: |
+          COVERAGE=$(./gradlew jacocoTestReport | grep -o 'TOTAL.*$' | awk '{print $4}')
+          echo "Coverage is $COVERAGE"
+          if [ $(echo "$COVERAGE < 93" | bc -l) -ne 0 ]; then
+            echo "Test coverage below 93%. Failing build."
+            exit 1
+          fi
+
+      - name: Store artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-artifacts
+          path: build/libs/
+
+  tag:
+    runs-on: ubuntu-latest
+    needs: build  # This job will only run if the 'build' job is successful
+    if: github.ref == 'refs/heads/master'  # Only run this job on the master branch
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: '17'
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build-artifacts
+
+      - name: Generate version tag
+        id: tag_version
+        run: |
+          VERSION="v$(date +'%Y%m%d%H%M%S')"
+          echo "New tag version: $VERSION"
+          git tag $VERSION
+          git push origin $VERSION
+        env:
+          GITHUB_TOKEN: ${{ secrets.LSU_ACTIONS_PAT }}
+
+      - name: Notify success
+        run: echo "Build and tag ${{ steps.tag_version.outputs.version }} successful."
