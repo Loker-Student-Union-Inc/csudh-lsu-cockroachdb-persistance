@@ -34,6 +34,7 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v2  # Set up Java Development Kit (JDK) version 17
         with:
+          distribution: 'temurin'  # Specify the JDK distribution to use
           java-version: '17'
 
       - name: Build with Gradle
@@ -77,6 +78,7 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v2  # Set up Java Development Kit (JDK) version 17
         with:
+          distribution: 'temurin'  # Specify the JDK distribution to use
           java-version: '17'
 
       - name: Bump version and create tag
@@ -85,19 +87,15 @@ jobs:
           # Get the latest tag from the repository
           LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1` || echo "v0.0.0")
           echo "Latest tag: $LATEST_TAG"
-
           # Split the latest version into its components (major, minor, patch)
           VERSION_MAJOR=$(echo $LATEST_TAG | cut -d. -f1 | tr -d 'v')
           VERSION_MINOR=$(echo $LATEST_TAG | cut -d. -f2)
           VERSION_PATCH=$(echo $LATEST_TAG | cut -d. -f3)
-
           # Increment the patch version (you can modify this to increment major/minor instead)
           VERSION_PATCH=$((VERSION_PATCH + 1))
-
           # Create the new version tag
           NEW_TAG="v${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
           echo "New tag version: $NEW_TAG"
-
           # Tag the commit with the new version
           git tag $NEW_TAG
           git push origin $NEW_TAG  # Push the tag to the GitHub repository
