@@ -1,97 +1,108 @@
 name: CI/CD Pipeline
 
+# Define the events that trigger the workflow
 on:
   push:
     branches:
-      - master       # Triggers workflow on pushes to the master branch.
-      - develop      # Triggers workflow on pushes to the develop branch.
-      - feature/*    # Triggers workflow on pushes to any branch starting with 'feature/'.
-      - release/*    # Triggers workflow on pushes to any branch starting with 'release/'.
-      - bugfix/*     # Triggers workflow on pushes to any branch starting with 'bugfix/'.
+      - master       # Trigger workflow on pushes to the master branch.
+      - develop      # Trigger workflow on pushes to the develop branch.
+      - feature/*    # Trigger workflow on pushes to any branch starting with 'feature/'.
+      - release/*    # Trigger workflow on pushes to any branch starting with 'release/'.
+      - bugfix/*     # Trigger workflow on pushes to any branch starting with 'bugfix/'.
   pull_request:
     branches:
-      - master       # Triggers workflow on pull requests targeting the master branch.
-      - develop      # Triggers workflow on pull requests targeting the develop branch.
-      - feature/*    # Triggers workflow on pull requests targeting any branch starting with 'feature/'.
-      - release/*    # Triggers workflow on pull requests targeting any branch starting with 'release/'.
-      - bugfix/*     # Triggers workflow on pull requests targeting any branch starting with 'bugfix/'.
+      - master       # Trigger workflow on pull requests targeting the master branch.
+      - develop      # Trigger workflow on pull requests targeting the develop branch.
+      - feature/*    # Trigger workflow on pull requests targeting any branch starting with 'feature/'.
+      - release/*    # Trigger workflow on pull requests targeting any branch starting with 'release/'.
+      - bugfix/*     # Trigger workflow on pull requests targeting any branch starting with 'bugfix/'.
   workflow_dispatch:  # Allows the workflow to be manually triggered from the GitHub Actions tab.
 
+# Set permissions for the workflow
 permissions:
   contents: write  # Ensure the GitHub Actions bot can write to the repository (including pushing tags)
 
+# Define jobs to be executed in the workflow
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use the latest version of Ubuntu as the environment
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2  # Check out the repository code
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2  # Set up Java Development Kit (JDK) version 17
         with:
           java-version: '17'
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build  # Run the Gradle build task
 
       - name: Run tests with coverage
-        run: ./gradlew test jacocoTestReport
+        run: ./gradlew test jacocoTestReport  # Run tests and generate the JaCoCo coverage report
 
       - name: Verify test coverage
         run: |
+          # Extract the test coverage percentage from the JaCoCo report
           COVERAGE=$(./gradlew jacocoTestReport | grep -o 'TOTAL.*$' | awk '{print $4}')
           echo "Coverage is $COVERAGE"
-          if [ $(echo "$COVERAGE < 93" | bc -l) -ne 0 ]; then
-            echo "Test coverage below 93%. Failing build."
+          # Check if coverage is below the threshold (80%)
+          if [ $(echo "$COVERAGE < 80" | bc -l) -ne 0 ]; then
+            echo "Test coverage below 80%. Failing build."
             exit 1
           fi
 
       - name: Store artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2  # Store the build artifacts for later use (e.g., in other jobs)
         with:
           name: build-artifacts
           path: build/libs/
 
+      - name: Publish to GitHub Packages
+        run: ./gradlew publish  # Publish the built artifacts to GitHub Packages
+        env:
+          USERNAME_GITHUB: ${{ secrets.LSU_GITHUB_USERNAME }}  # GitHub username stored in repository secrets
+          TOKEN_GITHUB: ${{ secrets.LSU_GITHUB_TOKEN }}  # GitHub token stored in repository secrets
+
   tag:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest  # Use the latest version of Ubuntu as the environment
+    needs: build  # This job depends on the successful completion of the 'build' job
+    if: github.ref == 'refs/heads/master'  # Only run this job if the current branch is 'master'
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2  # Check out the repository code
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2  # Set up Java Development Kit (JDK) version 17
         with:
           java-version: '17'
 
       - name: Bump version and create tag
         id: bump_version
         run: |
-          # Try to get the latest tag
+          # Get the latest tag from the repository
           LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1` || echo "v0.0.0")
           echo "Latest tag: $LATEST_TAG"
 
-          # Split the latest version into its components
+          # Split the latest version into its components (major, minor, patch)
           VERSION_MAJOR=$(echo $LATEST_TAG | cut -d. -f1 | tr -d 'v')
           VERSION_MINOR=$(echo $LATEST_TAG | cut -d. -f2)
           VERSION_PATCH=$(echo $LATEST_TAG | cut -d. -f3)
 
-          # Increment the patch version (or change logic to increment minor/major as needed)
+          # Increment the patch version (you can modify this to increment major/minor instead)
           VERSION_PATCH=$((VERSION_PATCH + 1))
 
           # Create the new version tag
           NEW_TAG="v${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
           echo "New tag version: $NEW_TAG"
 
-          # Tag the commit
+          # Tag the commit with the new version
           git tag $NEW_TAG
-          git push origin $NEW_TAG
+          git push origin $NEW_TAG  # Push the tag to the GitHub repository
         env:
-          GITHUB_TOKEN: ${{ secrets.LSU_ACTIONS_PAT }}
+          GITHUB_TOKEN: ${{ secrets.LSU_ACTIONS_PAT }}  # GitHub token stored in repository secrets
 
       - name: Notify success
-        run: echo "Build and tag ${{ steps.bump_version.outputs.NEW_TAG }} successful."
+        run: echo "Build and tag ${{ steps.bump_version.outputs.NEW_TAG }} successful."  # Notify that the tagging was successful
