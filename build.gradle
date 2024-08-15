@@ -126,9 +126,10 @@ publishing {
             url = uri("https://maven.pkg.github.com/Loker-Student-Union-Inc/csudh-lsu-cockroachdb-persistance")
             credentials {
                 username = project.findProperty("gpr.user") ?: System.getenv("LSU_GITHUB_USERNAME")
-                password = project.findProperty("gpr.token") ?: System.getenv("LSU_GITHUB_TOKEN")
+                password = project.findProperty("gpr.token") ?: System.getenv("GITHUB_TOKEN")
             }
         }
     }
 }
+
 

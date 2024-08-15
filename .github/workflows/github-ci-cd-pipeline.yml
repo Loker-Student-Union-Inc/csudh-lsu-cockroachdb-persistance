@@ -64,7 +64,7 @@ jobs:
         run: ./gradlew publish  # Publish the built artifacts to GitHub Packages
         env:
           USERNAME_GITHUB: ${{ secrets.LSU_GITHUB_USERNAME }}  # GitHub username stored in repository secrets
-          TOKEN_GITHUB: ${{ secrets.LSU_GITHUB_TOKEN }}  # GitHub token stored in repository secrets
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token automatically provided by GitHub Actions
 
   tag:
     runs-on: ubuntu-latest  # Use the latest version of Ubuntu as the environment
@@ -100,7 +100,7 @@ jobs:
           git tag $NEW_TAG
           git push origin $NEW_TAG  # Push the tag to the GitHub repository
         env:
-          GITHUB_TOKEN: ${{ secrets.LSU_ACTIONS_PAT }}  # GitHub token stored in repository secrets
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use the automatically provided GitHub token
 
       - name: Notify success
         run: echo "Build and tag ${{ steps.bump_version.outputs.NEW_TAG }} successful."  # Notify that the tagging was successful
