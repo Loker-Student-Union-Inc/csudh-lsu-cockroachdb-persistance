@@ -63,7 +63,7 @@ jobs:
       - name: Publish to GitHub Packages
         run: ./gradlew publish  # Publish the built artifacts to GitHub Packages
         env:
-          USERNAME_GITHUB: ${{ secrets.LSU_GITHUB_USERNAME }}  # GitHub username stored in repository secrets
+          USERNAME_GITHUB: ${{ secrets.USERNAME_GITHUB }}  # GitHub username stored in repository secrets
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token automatically provided by GitHub Actions
 
   tag:
