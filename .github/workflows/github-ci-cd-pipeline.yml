@@ -21,6 +21,8 @@ on:
 # Set permissions for the workflow
 permissions:
   contents: write  # Ensure the GitHub Actions bot can write to the repository (including pushing tags)
+  packages: write  # Ensure the GitHub Actions bot can write to GitHub Packages
+
 
 # Define jobs to be executed in the workflow
 jobs:
@@ -61,7 +63,7 @@ jobs:
           path: build/libs/
 
       - name: Publish to GitHub Packages
-        run: ./gradlew publish  # Publish the built artifacts to GitHub Packages
+        run: ./gradlew publish  --info --stacktrace  # Enable detailed logs and stacktrace and Publish the built artifacts to GitHub Packages
         env:
           USERNAME_GITHUB: ${{ secrets.USERNAME_GITHUB }}  # GitHub username stored in repository secrets
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token automatically provided by GitHub Actions
