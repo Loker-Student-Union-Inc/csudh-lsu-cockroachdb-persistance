@@ -32,7 +32,7 @@ import java.util.UUID;
  */
 
 @Repository
-public interface ActivityRepository extends JpaRepository<ActivityRepository, UUID> {
+public interface ActivityRepository extends JpaRepository<Activity, UUID> {
 
     // Upsert an activity
     @Modifying
