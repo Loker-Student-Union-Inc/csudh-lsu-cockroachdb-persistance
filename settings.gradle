@@ -1,14 +1,2 @@
-//pluginManagement {
-//    repositories {
-//        maven {
-//            url 'https://artifactry/..../plugin-release'
-//            credentials {
-//                username = artifactoryUsername
-//                password = artifactoryPassword
-//            }
-//        }
-//    }
-//}
-
 rootProject.name = 'csudh-lsu-cockroachdb-persistance'
 
