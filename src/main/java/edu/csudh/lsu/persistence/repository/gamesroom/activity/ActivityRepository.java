@@ -1,5 +1,6 @@
 package edu.csudh.lsu.persistence.repository.gamesroom.activity;
 
+import edu.csudh.lsu.persistence.model.activity.Activity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -32,7 +33,7 @@ import java.util.UUID;
  */
 
 @Repository
-public interface ActivityRepository extends JpaRepository<ActivityRepository, UUID> {
+public interface ActivityRepository extends JpaRepository<Activity, UUID> {
 
     // Upsert an activity
     @Modifying
