@@ -1,12 +1,12 @@
 plugins {
     id 'java'
     id 'jacoco'  // JaCoCo plugin for code coverage
-    id 'maven-publish'  // Add this line to apply the maven-publish plugin
+    id 'maven-publish'  // Maven Publish plugin
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17) // Use Java 17 or any compatible version like 11 or 20
+        languageVersion = JavaLanguageVersion.of(17) // Use Java 17 or any compatible version
     }
 }
 
@@ -113,20 +113,44 @@ test {
     useJUnitPlatform()
 }
 
-// Publishing Configuration
+// Define tasks for release and snapshot JARs
+task releaseJar(type: Jar) {
+    archiveBaseName.set("csudh-lsu-cockroachdb-persistance")  // Custom name without version
+    archiveVersion.set("")  // No version in the file name
+    from sourceSets.main.output
+    destinationDirectory.set(file("$buildDir/libs"))  // Ensure it is output to the libs directory
+}
+
+task snapshotJar(type: Jar) {
+    archiveBaseName.set("csudh-lsu-cockroachdb-persistance")
+    archiveVersion.set("${project.version}")
+    from sourceSets.main.output
+    destinationDirectory.set(file("$buildDir/libs"))  // Ensure it is output to the libs directory
+}
+
+// Make sure both JARs are built
+assemble.dependsOn(releaseJar, snapshotJar)
+
+// Register both JARs as artifacts for the publishing tasks
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            from components.java
+        release(MavenPublication) {
+            artifact releaseJar
+            groupId = 'edu.csudh.lsu.persistence'
+            version = project.version.replace('-SNAPSHOT', '')  // Release version without SNAPSHOT
+        }
+
+        snapshot(MavenPublication) {
+            artifact snapshotJar
+            groupId = 'edu.csudh.lsu.persistence'
+            version = project.version  // Snapshot version
         }
     }
 
     repositories {
         maven {
             name = "GitHubPackages"
-            url = project.version.endsWith('SNAPSHOT') ?
-                    "https://maven.pkg.github.com/Loker-Student-Union-Inc/csudh-lsu-cockroachdb-persistance-snapshots" :
-                    "https://maven.pkg.github.com/Loker-Student-Union-Inc/csudh-lsu-cockroachdb-persistance"
+            url = uri("https://maven.pkg.github.com/Loker-Student-Union-Inc/csudh-lsu-cockroachdb-persistance")
             credentials {
                 username = project.findProperty("gpr.user") ?: System.getenv("USERNAME_GITHUB")
                 password = project.findProperty("gpr.token") ?: System.getenv("GITHUB_TOKEN")
