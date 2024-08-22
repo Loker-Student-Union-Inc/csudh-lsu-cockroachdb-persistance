@@ -136,6 +136,8 @@ test {
 publishing {
     repositories {
         maven {
+            name = "GitHubPackages"
+
             // Define the repository URLs for releases and snapshots
             String releasesRepoUrl = "https://maven.pkg.github.com/Loker-Student-Union-Inc/csudh-lsu-cockroachdb-persistance"
             String snapshotsRepoUrl = "https://maven.pkg.github.com/Loker-Student-Union-Inc/csudh-lsu-cockroachdb-persistance-snapshots"
