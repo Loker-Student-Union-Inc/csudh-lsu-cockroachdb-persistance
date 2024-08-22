@@ -1,14 +1,12 @@
 package edu.csudh.lsu.persistence.repository.gamesroom.shift;
 
 import edu.csudh.lsu.persistence.model.shift.ShiftReport;
-import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.Pageable;
 
 import java.sql.Date;
 import java.sql.Time;
