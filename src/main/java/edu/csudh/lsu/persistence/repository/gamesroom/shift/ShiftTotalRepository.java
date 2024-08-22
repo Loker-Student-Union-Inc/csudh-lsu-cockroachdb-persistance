@@ -1,7 +1,6 @@
 package edu.csudh.lsu.persistence.repository.gamesroom.shift;
 
 import edu.csudh.lsu.persistence.model.shift.ShiftTotal;
-import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -89,10 +88,6 @@ public interface ShiftTotalRepository extends JpaRepository<ShiftTotal, UUID> {
     @Transactional
     @Query(value = "DELETE FROM SHIFT_TOTAL WHERE ID = :id", nativeQuery = true)
     void deleteShiftTotal(@Param("id") UUID id);
-
-    // Select a shift total by ID
-    @Query(value = "SELECT * FROM SHIFT_TOTAL", nativeQuery = true)
-    Page<ShiftTotal> findShiftTotalById();
 
     // Calculate total costs for a given attendant for a specific date
     @Query(value = "SELECT " +
