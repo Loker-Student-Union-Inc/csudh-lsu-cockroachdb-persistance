@@ -123,18 +123,13 @@ publishing {
 
     repositories {
         maven {
-            // Define the repository URLs for releases and snapshots
-            String releasesRepoUrl = "https://maven.pkg.github.com/Loker-Student-Union-Inc/csudh-lsu-cockroachdb-persistance"
-            String snapshotsRepoUrl = "https://maven.pkg.github.com/Loker-Student-Union-Inc/csudh-lsu-cockroachdb-persistance-snapshots"
-
-            // Conditionally select the appropriate repository URL based on the version
-            url = project.version.toString().endsWith('-SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-
-            println("Publishing to: $url")  // Add logging here
-
+            name = "GitHubPackages"
+            url = project.version.endsWith('SNAPSHOT') ?
+                    "https://maven.pkg.github.com/Loker-Student-Union-Inc/csudh-lsu-cockroachdb-persistance-snapshots" :
+                    "https://maven.pkg.github.com/Loker-Student-Union-Inc/csudh-lsu-cockroachdb-persistance"
             credentials {
-                username = "your_github_username" // Replace with your GitHub username
-                password = "your_personal_access_token" // Replace with your personal access token
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME_GITHUB")
+                password = project.findProperty("gpr.token") ?: System.getenv("GITHUB_TOKEN")
             }
         }
     }
