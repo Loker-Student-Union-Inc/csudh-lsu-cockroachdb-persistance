@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Pageable;
 
 import java.sql.Date;
 import java.sql.Time;
@@ -154,7 +155,4 @@ public interface ShiftReportRepository extends JpaRepository<ShiftReport, UUID> 
     @Query(value = "DELETE FROM SHIFT_REPORT WHERE SHIFT_REPORT_ID = :shiftReportId", nativeQuery = true)
     void deleteShiftReport(@Param("shiftReportId") UUID shiftReportId);
 
-    // Fetch all Shift Report records
-    @Query(value = "SELECT * FROM SHIFT_REPORT", nativeQuery = true)
-    Page<ShiftReport> findShiftReportById();
 }
