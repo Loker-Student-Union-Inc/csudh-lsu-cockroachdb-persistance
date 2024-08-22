@@ -11,7 +11,7 @@ java {
 }
 
 group = 'edu.csudh.lsu.persistence'
-version = '0.0.1-SNAPSHOT'
+version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -113,8 +113,8 @@ test {
     useJUnitPlatform()
 }
 
-// Local Use
-/*publishing {
+// Publishing Configuration
+publishing {
     repositories {
         maven {
             // Define the repository URLs for releases and snapshots
@@ -130,4 +130,4 @@ test {
             }
         }
     }
-}*/
+}
