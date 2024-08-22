@@ -1,7 +1,6 @@
 package edu.csudh.lsu.persistence.repository.gamesroom.shift;
 
 import edu.csudh.lsu.persistence.model.shift.ShiftReport;
-import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -154,7 +153,4 @@ public interface ShiftReportRepository extends JpaRepository<ShiftReport, UUID> 
     @Query(value = "DELETE FROM SHIFT_REPORT WHERE SHIFT_REPORT_ID = :shiftReportId", nativeQuery = true)
     void deleteShiftReport(@Param("shiftReportId") UUID shiftReportId);
 
-    // Fetch all Shift Report records
-    @Query(value = "SELECT * FROM SHIFT_REPORT", nativeQuery = true)
-    Page<ShiftReport> findShiftReportById();
 }
