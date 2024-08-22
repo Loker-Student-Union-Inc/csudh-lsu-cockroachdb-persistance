@@ -13,7 +13,7 @@ java {
 group = 'edu.csudh.lsu.persistence'
 
 // Version is managed via tags and snapshot suffix
-version = project.hasProperty('snapshot') ? '0.0.1-SNAPSHOT' : '0.0.1'  // Example, update as needed
+version = project.hasProperty('snapshot') ? '1.0-SNAPSHOT' : '0.0.8'  // Example, update as needed
 
 repositories {
     mavenCentral()
