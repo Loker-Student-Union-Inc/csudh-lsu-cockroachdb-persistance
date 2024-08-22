@@ -116,14 +116,14 @@ test {
 // Define tasks for release and snapshot JARs
 task releaseJar(type: Jar) {
     archiveBaseName.set("csudh-lsu-cockroachdb-persistance")  // Custom name without version
-    archiveVersion.set("")  // No version in the file name
+    archiveVersion.set("")  // No version in the file name for release
     from sourceSets.main.output
     destinationDirectory.set(file("$buildDir/libs"))  // Ensure it is output to the libs directory
 }
 
 task snapshotJar(type: Jar) {
     archiveBaseName.set("csudh-lsu-cockroachdb-persistance")
-    archiveVersion.set("${project.version}")
+    archiveVersion.set("${project.version}")  // Snapshot version
     from sourceSets.main.output
     destinationDirectory.set(file("$buildDir/libs"))  // Ensure it is output to the libs directory
 }
