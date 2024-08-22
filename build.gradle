@@ -131,3 +131,34 @@ test {
         }
     }
 }*/
+
+// Publishing Configuration
+publishing {
+    repositories {
+        maven {
+            // Define the repository URLs for releases and snapshots
+            String releasesRepoUrl = "https://maven.pkg.github.com/Loker-Student-Union-Inc/csudh-lsu-cockroachdb-persistance"
+            String snapshotsRepoUrl = "https://maven.pkg.github.com/Loker-Student-Union-Inc/csudh-lsu-cockroachdb-persistance-snapshots"
+
+            // Conditionally select the appropriate repository URL based on the version
+            url = project.version.toString().endsWith('-SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+            // Configure credentials for GitHub Packages
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME_GITHUB")
+                password = project.findProperty("gpr.token") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+
+
+
+
