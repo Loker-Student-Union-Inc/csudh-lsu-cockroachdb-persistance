@@ -115,6 +115,12 @@ test {
 
 // Publishing Configuration
 publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+
     repositories {
         maven {
             // Define the repository URLs for releases and snapshots
@@ -124,9 +130,11 @@ publishing {
             // Conditionally select the appropriate repository URL based on the version
             url = project.version.toString().endsWith('-SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
 
+            println("Publishing to: $url")  // Add logging here
+
             credentials {
-                username = "your_github_username"
-                password = "your_personal_access_token"
+                username = "your_github_username" // Replace with your GitHub username
+                password = "your_personal_access_token" // Replace with your personal access token
             }
         }
     }
