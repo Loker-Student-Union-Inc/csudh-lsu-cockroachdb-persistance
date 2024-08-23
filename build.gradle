@@ -15,12 +15,26 @@ java {
 // Set the group for the project
 group = 'edu.csudh.lsu.persistence'
 
-// Dynamically set the version based on provided tagVersion property or fallback to the version in gradle.properties
-version = project.hasProperty('tagVersion') ? project.tagVersion : project.version
+// Fetch the latest Git tag dynamically and use it as the version
+version = getLatestTagOrSnapshot()
 
 // Repositories configuration
 repositories {
     mavenCentral()
+}
+
+// Function to get the latest Git tag or fallback to "1.0-SNAPSHOT"
+def getLatestTagOrSnapshot() {
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'describe', '--tags', '--abbrev=0'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    } catch (Exception ignored) {
+        return "1.0-SNAPSHOT"
+    }
 }
 
 // Source sets configuration
@@ -153,22 +167,29 @@ task snapshotJar(type: Jar) {
     destinationDirectory.set(file("$buildDir/libs"))  // Ensure it is output to the libs directory
 }
 
-// Make sure both JARs are built
-assemble.dependsOn(releaseJar, snapshotJar)
+// Only one of releaseJar or snapshotJar should be created based on version
+if (version.endsWith("-SNAPSHOT")) {
+    assemble.dependsOn snapshotJar
+} else {
+    assemble.dependsOn releaseJar
+}
 
-// Register both JARs as artifacts for the publishing tasks
+// Register the correct JAR as an artifact for the publishing tasks
 publishing {
     publications {
-        release(MavenPublication) {
-            artifact releaseJar
-            groupId = 'edu.csudh.lsu.persistence'
-            version = project.version.replace('-SNAPSHOT', '')  // Release version without SNAPSHOT
-        }
-
-        snapshot(MavenPublication) {
-            artifact snapshotJar
-            groupId = 'edu.csudh.lsu.persistence'
-            version = project.version  // Snapshot version
+        // Conditionally publish release or snapshot based on the version
+        if (version.endsWith("-SNAPSHOT")) {
+            snapshot(MavenPublication) {
+                artifact snapshotJar
+                groupId = 'edu.csudh.lsu.persistence'
+                version = project.version  // Snapshot version
+            }
+        } else {
+            release(MavenPublication) {
+                artifact releaseJar
+                groupId = 'edu.csudh.lsu.persistence'
+                version = project.version.replace('-SNAPSHOT', '')  // Release version without SNAPSHOT
+            }
         }
     }
 
