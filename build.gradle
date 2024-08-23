@@ -26,13 +26,22 @@ repositories {
 // Function to get the latest Git tag or fallback to "1.0-SNAPSHOT"
 def getLatestTagOrSnapshot() {
     try {
+        // Ensure that all tags are fetched
+        exec {
+            commandLine 'git', 'fetch', '--tags', '--force'
+        }
+
         def stdout = new ByteArrayOutputStream()
         exec {
             commandLine 'git', 'describe', '--tags', '--abbrev=0'
             standardOutput = stdout
         }
-        return stdout.toString().trim()
-    } catch (Exception ignored) {
+        def version = stdout.toString().trim()
+        if (!version) throw new Exception("No tags found.")
+        println "Resolved version from Git tags: ${version}"
+        return version
+    } catch (Exception e) {
+        println "Error fetching Git tag version: ${e.message}. Using default version: 1.0-SNAPSHOT"
         return "1.0-SNAPSHOT"
     }
 }
