@@ -1,24 +1,29 @@
+// Apply plugins
 plugins {
     id 'java'
     id 'jacoco'  // JaCoCo plugin for code coverage
     id 'maven-publish'  // Maven Publish plugin
 }
 
+// Java toolchain setup
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17) // Use Java 17 or any compatible version
     }
 }
 
+// Set the group for the project
 group = 'edu.csudh.lsu.persistence'
 
-// Version is managed via tags and snapshot suffix
-version = project.hasProperty('tagVersion') ? project.tagVersion : '1.0-SNAPSHOT'  // Default to '1.0-SNAPSHOT' if no tag version is provided
+// Use the version defined in gradle.properties
+version = project.version
 
+// Repositories configuration
 repositories {
     mavenCentral()
 }
 
+// Source sets configuration
 sourceSets {
     main {
         java {
@@ -32,11 +37,13 @@ sourceSets {
     }
 }
 
+// External dependencies versions
 ext {
     springBootVersion = '3.3.2'
     lombokVersion = '1.18.34'
 }
 
+// Project dependencies
 dependencies {
     // Spring Boot and JPA dependencies
     implementation "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
@@ -68,6 +75,7 @@ dependencies {
     implementation 'net.bytebuddy:byte-buddy:1.14.18'
 }
 
+// Task for processing resources with dynamic replacements
 tasks.named('processResources') {
     from('src/main/resources') {
         filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
@@ -77,16 +85,19 @@ tasks.named('processResources') {
     }
 }
 
+// Java compile options
 tasks.withType(JavaCompile) {
     options.release = 17 // Or another supported version like 11 or 20
 }
 
+// Function to get the current date
 def getDate() {
     def date = new Date()
     def formattedDate = date.format('MM-dd-yyyy HH:mm:ss')
     return formattedDate
 }
 
+// JaCoCo configuration
 jacocoTestReport {
     reports {
         xml.required = true
@@ -119,8 +130,10 @@ jacocoTestCoverageVerification {
     }
 }
 
+// Ensure coverage verification before check
 check.dependsOn jacocoTestCoverageVerification
 
+// Test task configuration
 test {
     useJUnitPlatform()
 }
