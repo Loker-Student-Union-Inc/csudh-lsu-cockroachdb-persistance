@@ -1,17 +1,19 @@
 plugins {
     id 'java'
     id 'jacoco'  // JaCoCo plugin for code coverage
-    id 'maven-publish'  // Add this line to apply the maven-publish plugin
+    id 'maven-publish'  // Maven Publish plugin
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17) // Use Java 17 or any compatible version like 11 or 20
+        languageVersion = JavaLanguageVersion.of(17) // Use Java 17 or any compatible version
     }
 }
 
 group = 'edu.csudh.lsu.persistence'
-version = '1.0-SNAPSHOT'
+
+// Version is managed via tags and snapshot suffix
+version = project.hasProperty('snapshot') ? '1.0-SNAPSHOT' : '0.0.8'  // Example, update as needed
 
 repositories {
     mavenCentral()
@@ -77,7 +79,7 @@ def getDate() {
 
 jacocoTestReport {
     reports {
-        xml.required = true // Ensure XML report is enabled correctly
+        xml.required = true
         csv.required = false
         html.required = true
     }
@@ -113,20 +115,47 @@ test {
     useJUnitPlatform()
 }
 
-// Publishing Configuration
+// Define tasks for release and snapshot JARs
+task releaseJar(type: Jar) {
+    archiveBaseName.set("csudh-lsu-cockroachdb-persistance")  // Custom name without version
+    archiveVersion.set("")  // No version in the file name for release
+    from sourceSets.main.output
+    destinationDirectory.set(file("$buildDir/libs"))  // Ensure it is output to the libs directory
+}
+
+task snapshotJar(type: Jar) {
+    archiveBaseName.set("csudh-lsu-cockroachdb-persistance")
+    archiveVersion.set("${project.version}")  // Snapshot version
+    from sourceSets.main.output
+    destinationDirectory.set(file("$buildDir/libs"))  // Ensure it is output to the libs directory
+}
+
+// Make sure both JARs are built
+assemble.dependsOn(releaseJar, snapshotJar)
+
+// Register both JARs as artifacts for the publishing tasks
 publishing {
+    publications {
+        release(MavenPublication) {
+            artifact releaseJar
+            groupId = 'edu.csudh.lsu.persistence'
+            version = project.version.replace('-SNAPSHOT', '')  // Release version without SNAPSHOT
+        }
+
+        snapshot(MavenPublication) {
+            artifact snapshotJar
+            groupId = 'edu.csudh.lsu.persistence'
+            version = project.version  // Snapshot version
+        }
+    }
+
     repositories {
         maven {
-            // Define the repository URLs for releases and snapshots
-            String releasesRepoUrl = "https://maven.pkg.github.com/Loker-Student-Union-Inc/csudh-lsu-cockroachdb-persistance"
-            String snapshotsRepoUrl = "https://maven.pkg.github.com/Loker-Student-Union-Inc/csudh-lsu-cockroachdb-persistance-snapshots"
-
-            // Conditionally select the appropriate repository URL based on the version
-            url = project.version.toString().endsWith('-SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/Loker-Student-Union-Inc/csudh-lsu-cockroachdb-persistance")
             credentials {
-                username = "your_github_username"
-                password = "your_personal_access_token"
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME_GITHUB")
+                password = project.findProperty("gpr.token") ?: System.getenv("GITHUB_TOKEN")
             }
         }
     }

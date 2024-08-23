@@ -23,7 +23,6 @@ permissions:
   contents: write  # Ensure the GitHub Actions bot can write to the repository (including pushing tags)
   packages: write  # Ensure the GitHub Actions bot can write to GitHub Packages
 
-
 # Define jobs to be executed in the workflow
 jobs:
   build:
@@ -62,8 +61,23 @@ jobs:
           name: build-artifacts
           path: build/libs/
 
+  publish:
+    runs-on: ubuntu-latest  # Use the latest version of Ubuntu as the environment
+    needs: build  # This job depends on the successful completion of the 'build' job
+    if: github.ref == 'refs/heads/master'  # Only run this job if the current branch is 'master'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2  # Check out the repository code
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2  # Set up Java Development Kit (JDK) version 17
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Publish to GitHub Packages
-        run: ./gradlew publish  --info --stacktrace  # Enable detailed logs and stacktrace and Publish the built artifacts to GitHub Packages
+        run: ./gradlew publish --info --stacktrace  # Enable detailed logs and stacktrace and Publish the built artifacts to GitHub Packages
         env:
           USERNAME_GITHUB: ${{ secrets.USERNAME_GITHUB }}  # GitHub username stored in repository secrets
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token automatically provided by GitHub Actions
@@ -80,7 +94,7 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v2  # Set up Java Development Kit (JDK) version 17
         with:
-          distribution: 'temurin'  # Specify the JDK distribution to use
+          distribution: 'temurin'
           java-version: '17'
 
       - name: Bump version and create tag
