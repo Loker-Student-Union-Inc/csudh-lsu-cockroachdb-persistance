@@ -38,8 +38,16 @@ jobs:
           distribution: 'temurin'  # Specify the JDK distribution to use
           java-version: '17'
 
+      - name: Determine version from tags
+        id: get_tag_version
+        run: |
+          git fetch --tags
+          # Get the latest tag or default to 1.0-SNAPSHOT
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0-SNAPSHOT")
+          echo "tagVersion=$TAG" >> $GITHUB_ENV
+
       - name: Build with Gradle
-        run: ./gradlew build  # Run the Gradle build task
+        run: ./gradlew build -PtagVersion=$tagVersion  # Run the Gradle build task with dynamic version
 
       - name: Run tests with coverage
         run: ./gradlew test jacocoTestReport  # Run tests and generate the JaCoCo coverage report
@@ -77,7 +85,7 @@ jobs:
           java-version: '17'
 
       - name: Publish to GitHub Packages
-        run: ./gradlew publish --info --stacktrace  # Enable detailed logs and stacktrace and Publish the built artifacts to GitHub Packages
+        run: ./gradlew publish --info --stacktrace -PtagVersion=$tagVersion  # Publish artifacts with dynamic version
         env:
           USERNAME_GITHUB: ${{ secrets.USERNAME_GITHUB }}  # GitHub username stored in repository secrets
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token automatically provided by GitHub Actions

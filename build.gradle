@@ -15,8 +15,8 @@ java {
 // Set the group for the project
 group = 'edu.csudh.lsu.persistence'
 
-// Use the version defined in gradle.properties
-version = project.version
+// Dynamically set the version based on provided tagVersion property or fallback to the version in gradle.properties
+version = project.hasProperty('tagVersion') ? project.tagVersion : project.version
 
 // Repositories configuration
 repositories {
