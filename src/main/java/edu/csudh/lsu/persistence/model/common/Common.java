@@ -1,7 +1,6 @@
 package edu.csudh.lsu.persistence.model.common;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.Getter;
@@ -12,8 +11,7 @@ import org.springframework.data.annotation.CreatedDate;
 import java.sql.Date;
 import java.sql.Time;
 
-@JsonSerialize
-@JsonDeserialize
+@MappedSuperclass
 @NoArgsConstructor
 public class Common {
 
