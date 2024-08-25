@@ -42,7 +42,7 @@ class ActivityServiceTest {
         activityService.saveActivity(null);
 
         // Assert
-        verify(activityRepository, never()).upsertActivity(anyString(), anyString(), anyInt(), anyString(), any(), any(), anyString(), anyString());
+        verify(activityRepository, never()).save(any(Activity.class));
     }
 
     @Test
@@ -54,11 +54,7 @@ class ActivityServiceTest {
         activityService.saveActivity(activity);
 
         // Assert
-        verify(activityRepository, times(1)).upsertActivity(
-                eq(activity.getActivity()), eq(activity.getCategory()), eq(activity.getPrice()),
-                eq(activity.getImageLocation()), eq(activity.getCreatedTime()), eq(activity.getCreatedDate()),
-                eq(activity.getLastUpdatedBy()), eq(activity.getAccessedBy())
-        );
+        verify(activityRepository, times(1)).save(activity);
     }
 
     @Test
@@ -66,7 +62,7 @@ class ActivityServiceTest {
         // Arrange
         Activity activity = createSampleActivity();
         doThrow(new DataAccessResourceFailureException("Data access failure"))
-                .when(activityRepository).upsertActivity(anyString(), anyString(), anyInt(), anyString(), any(), any(), anyString(), anyString());
+                .when(activityRepository).save(any(Activity.class));
 
         // Act & Assert
         assertThrows(DataAccessResourceFailureException.class, () -> activityService.saveActivity(activity));
@@ -77,7 +73,7 @@ class ActivityServiceTest {
         // Arrange
         Activity activity = createSampleActivity();
         doThrow(new JDBCConnectionException("JDBC connection failure", null))
-                .when(activityRepository).upsertActivity(anyString(), anyString(), anyInt(), anyString(), any(), any(), anyString(), anyString());
+                .when(activityRepository).save(any(Activity.class));
 
         // Act & Assert
         assertThrows(JDBCConnectionException.class, () -> activityService.saveActivity(activity));
@@ -88,7 +84,7 @@ class ActivityServiceTest {
         // Arrange
         Activity activity = createSampleActivity();
         doThrow(new JpaSystemException(new RuntimeException("JPA system failure")))
-                .when(activityRepository).upsertActivity(anyString(), anyString(), anyInt(), anyString(), any(), any(), anyString(), anyString());
+                .when(activityRepository).save(any(Activity.class));
 
         // Act & Assert
         assertThrows(JpaSystemException.class, () -> activityService.saveActivity(activity));
@@ -99,7 +95,7 @@ class ActivityServiceTest {
         // Arrange
         Activity activity = createSampleActivity();
         doThrow(new TransactionException("Transaction failure"))
-                .when(activityRepository).upsertActivity(anyString(), anyString(), anyInt(), anyString(), any(), any(), anyString(), anyString());
+                .when(activityRepository).save(any(Activity.class));
 
         // Act & Assert
         assertThrows(TransactionException.class, () -> activityService.saveActivity(activity));
@@ -110,7 +106,7 @@ class ActivityServiceTest {
         // Arrange
         Activity activity = createSampleActivity();
         doThrow(new RuntimeException("Unexpected error"))
-                .when(activityRepository).upsertActivity(anyString(), anyString(), anyInt(), anyString(), any(), any(), anyString(), anyString());
+                .when(activityRepository).save(any(Activity.class));
 
         // Act & Assert
         PersistenceException exception = assertThrows(PersistenceException.class, () -> activityService.saveActivity(activity));
@@ -199,7 +195,7 @@ class ActivityServiceTest {
         Activity activity = new Activity();
         activity.setActivity("Pool Table");
         activity.setCategory("Table Activity");
-        activity.setPrice(4);  // This is where `intValue()` might be invoked
+        activity.setPrice(4);
         activity.setImageLocation("/images/sample.jpg");
         activity.setCreatedTime(new Time(System.currentTimeMillis()));
         activity.setCreatedDate(new Date(System.currentTimeMillis()));
