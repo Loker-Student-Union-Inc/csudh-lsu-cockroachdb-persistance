@@ -1,8 +1,6 @@
 package edu.csudh.lsu.persistence.model.common;
 
 import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,7 +19,6 @@ public class Common {
 
     @Getter
     @Setter
-    @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
     private Date createdDate;       // Date and time when the record was created
 
@@ -35,9 +32,9 @@ public class Common {
 
     @Getter
     @Setter
-    private String lastUpdatedBy;   // Tracks the user who last updated the record
+    private String lastUpdatedBy;  // Tracks the user who last updated the record
 
     @Getter
     @Setter
-    private String accessedBy;      // Tracks the user who last accessed or interacted with the record
+    private String accessedBy;  // Tracks the user who last accessed or interacted with the record
 }

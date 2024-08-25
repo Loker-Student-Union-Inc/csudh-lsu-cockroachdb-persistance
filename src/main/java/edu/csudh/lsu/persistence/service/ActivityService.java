@@ -9,13 +9,18 @@ import org.hibernate.TransactionException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.sql.Date;
+import java.sql.Time;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * <p>
@@ -53,22 +58,28 @@ public class ActivityService {
      * @throws DataAccessResourceFailureException    if a data access resource fails.
      * @throws PersistenceException                  if a general persistence error occurs.
      */
-    public void saveActivity(Activity activity) throws TransactionException, JDBCConnectionException, JpaSystemException
-            , DataAccessResourceFailureException {
+    @Modifying
+    @Transactional
+    public void saveActivity(Activity activity) throws TransactionException, JDBCConnectionException, JpaSystemException, DataAccessResourceFailureException {
 
         try {
             log.debug("Attempting to save activity: {}", activity);
             if (Objects.nonNull(activity)) {
-                activityRepository.upsertActivity(activity.getActivity(), activity.getCategory(),
-                        activity.getPrice(), activity.getImageLocation(),
-                        activity.getCreatedTime(), activity.getCreatedDate(),
-                        activity.getLastUpdatedBy(), activity.getAccessedBy());
+                // Set createdDate and createdTime if the activity is new (no existing ID)
+
+                var now = LocalDateTime.now(ZoneId.of("America/Los_Angeles"));
+                activity.setCreatedDate(Date.valueOf(now.toLocalDate()));
+                activity.setCreatedTime(Time.valueOf(now.toLocalTime()));
+                log.debug("Setting createdDate and createdTime for new activity.");
+
+
+                // Save the activity entity
+                activityRepository.save(activity);
                 log.info("Activity '{}' saved or updated successfully.", activity.getActivity());
             } else {
                 log.warn("Attempted to save a null activity.");
             }
-        } catch (DataAccessResourceFailureException | JDBCConnectionException | JpaSystemException
-                 | TransactionException exception) {
+        } catch (DataAccessResourceFailureException | JDBCConnectionException | JpaSystemException | TransactionException exception) {
             log.error("Data access or transaction failure while saving activity '{}'.", activity != null ? activity.getActivity() : "null", exception);
             throw exception;
         } catch (Exception exception) {
