@@ -39,7 +39,7 @@ public class Activity extends Common {
 
     @Column(name = "PRICE", updatable = true)
     @Getter @Setter
-    private Integer price;   // price for 30 minutes
+    private String price;   // price for 30 minutes
 
     @Column(name = "IMAGE_LOCATION", updatable = true)
     @Getter @Setter
