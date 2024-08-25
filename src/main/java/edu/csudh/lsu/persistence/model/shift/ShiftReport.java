@@ -25,6 +25,7 @@ import java.util.UUID;
 @JsonDeserialize
 @JsonSerialize
 @NoArgsConstructor
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class ShiftReport extends Common {
 
     @Getter

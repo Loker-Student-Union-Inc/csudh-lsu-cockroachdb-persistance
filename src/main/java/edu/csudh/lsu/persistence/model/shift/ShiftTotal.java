@@ -24,6 +24,7 @@ import java.util.UUID;
 @JsonDeserialize
 @JsonSerialize
 @NoArgsConstructor
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class ShiftTotal extends Common {
 
     @Getter
