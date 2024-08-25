@@ -43,15 +43,20 @@ public interface ActivityRepository extends JpaRepository<Activity, UUID> {
     void upsertActivity(@Param("id") UUID id,
                         @Param("activity") String activity,
                         @Param("category") String category,
-                        @Param("price") int price,
+                        @Param("price") String price,
                         @Param("imageLocation") String imageLocation,
                         @Param("createdTime") Time createdTime,
                         @Param("createdDate") Date createdDate,
                         @Param("lastUpdatedBy") String lastUpdatedBy,
                         @Param("accessedBy") String accessedBy);
 
-
     // List of categories
     @Query(value = "SELECT DISTINCT CATEGORY FROM ACTIVITY", nativeQuery = true)
     List<String> getAllCategories();
+
+    // Delete an activity by ID
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM ACTIVITY WHERE ID = :id", nativeQuery = true)
+    void deleteActivityById(@Param("id") UUID id);
 }

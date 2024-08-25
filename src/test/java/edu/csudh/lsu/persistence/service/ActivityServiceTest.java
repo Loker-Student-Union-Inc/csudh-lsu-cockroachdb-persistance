@@ -19,6 +19,7 @@ import java.sql.Time;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -191,11 +192,179 @@ class ActivityServiceTest {
         assertEquals(PersistenceConstants.PERSISTENCE_EXCEPTION, exception.getMessage());
     }
 
+    // Test cases for deleteActivity method
+
+    @Test
+    void deleteActivity_whenValidId_deletesSuccessfully() {
+        // Arrange
+        UUID activityId = UUID.randomUUID();
+
+        // Act
+        activityService.deleteActivity(activityId);
+
+        // Assert
+        verify(activityRepository, times(1)).deleteActivityById(activityId);
+    }
+
+    @Test
+    void deleteActivity_whenDataAccessResourceFailureException_throwsException() {
+        // Arrange
+        UUID activityId = UUID.randomUUID();
+        doThrow(new DataAccessResourceFailureException("Data access failure"))
+                .when(activityRepository).deleteActivityById(activityId);
+
+        // Act & Assert
+        assertThrows(DataAccessResourceFailureException.class, () -> activityService.deleteActivity(activityId));
+    }
+
+    @Test
+    void deleteActivity_whenJDBCConnectionException_throwsException() {
+        // Arrange
+        UUID activityId = UUID.randomUUID();
+        doThrow(new JDBCConnectionException("JDBC connection failure", null))
+                .when(activityRepository).deleteActivityById(activityId);
+
+        // Act & Assert
+        assertThrows(JDBCConnectionException.class, () -> activityService.deleteActivity(activityId));
+    }
+
+    @Test
+    void deleteActivity_whenJpaSystemException_throwsException() {
+        // Arrange
+        UUID activityId = UUID.randomUUID();
+        doThrow(new JpaSystemException(new RuntimeException("JPA system failure")))
+                .when(activityRepository).deleteActivityById(activityId);
+
+        // Act & Assert
+        assertThrows(JpaSystemException.class, () -> activityService.deleteActivity(activityId));
+    }
+
+    @Test
+    void deleteActivity_whenTransactionException_throwsException() {
+        // Arrange
+        UUID activityId = UUID.randomUUID();
+        doThrow(new TransactionException("Transaction failure"))
+                .when(activityRepository).deleteActivityById(activityId);
+
+        // Act & Assert
+        assertThrows(TransactionException.class, () -> activityService.deleteActivity(activityId));
+    }
+
+    @Test
+    void deleteActivity_whenUnexpectedException_throwsPersistenceException() {
+        // Arrange
+        UUID activityId = UUID.randomUUID();
+        doThrow(new RuntimeException("Unexpected error"))
+                .when(activityRepository).deleteActivityById(activityId);
+
+        // Act & Assert
+        PersistenceException exception = assertThrows(PersistenceException.class, () -> activityService.deleteActivity(activityId));
+        assertEquals(PersistenceConstants.PERSISTENCE_EXCEPTION, exception.getMessage());
+    }
+
+    // Test cases for updateActivity method
+
+    @Test
+    void updateActivity_whenValidActivity_updatesSuccessfully() {
+        // Arrange
+        Activity activity = createSampleActivity();
+        activity.setId(UUID.randomUUID());
+
+        // Act
+        activityService.updateActivity(activity);
+
+        // Assert
+        verify(activityRepository, times(1)).save(activity);
+    }
+
+    @Test
+    void updateActivity_whenActivityIsNull_logsWarning() {
+        // Act
+        activityService.updateActivity(null);
+
+        // Assert
+        verify(activityRepository, never()).save(any(Activity.class));
+    }
+
+    @Test
+    void updateActivity_whenActivityHasNullId_logsWarning() {
+        // Arrange
+        Activity activity = createSampleActivity();
+        activity.setId(null);
+
+        // Act
+        activityService.updateActivity(activity);
+
+        // Assert
+        verify(activityRepository, never()).save(any(Activity.class));
+    }
+
+    @Test
+    void updateActivity_whenDataAccessResourceFailureException_throwsException() {
+        // Arrange
+        Activity activity = createSampleActivity();
+        activity.setId(UUID.randomUUID());
+        doThrow(new DataAccessResourceFailureException("Data access failure"))
+                .when(activityRepository).save(any(Activity.class));
+
+        // Act & Assert
+        assertThrows(DataAccessResourceFailureException.class, () -> activityService.updateActivity(activity));
+    }
+
+    @Test
+    void updateActivity_whenJDBCConnectionException_throwsException() {
+        // Arrange
+        Activity activity = createSampleActivity();
+        activity.setId(UUID.randomUUID());
+        doThrow(new JDBCConnectionException("JDBC connection failure", null))
+                .when(activityRepository).save(any(Activity.class));
+
+        // Act & Assert
+        assertThrows(JDBCConnectionException.class, () -> activityService.updateActivity(activity));
+    }
+
+    @Test
+    void updateActivity_whenJpaSystemException_throwsException() {
+        // Arrange
+        Activity activity = createSampleActivity();
+        activity.setId(UUID.randomUUID());
+        doThrow(new JpaSystemException(new RuntimeException("JPA system failure")))
+                .when(activityRepository).save(any(Activity.class));
+
+        // Act & Assert
+        assertThrows(JpaSystemException.class, () -> activityService.updateActivity(activity));
+    }
+
+    @Test
+    void updateActivity_whenTransactionException_throwsException() {
+        // Arrange
+        Activity activity = createSampleActivity();
+        activity.setId(UUID.randomUUID());
+        doThrow(new TransactionException("Transaction failure"))
+                .when(activityRepository).save(any(Activity.class));
+
+        // Act & Assert
+        assertThrows(TransactionException.class, () -> activityService.updateActivity(activity));
+    }
+
+    @Test
+    void updateActivity_whenUnexpectedException_throwsPersistenceException() {
+        // Arrange
+        Activity activity = createSampleActivity();
+        activity.setId(UUID.randomUUID());
+        doThrow(new RuntimeException("Unexpected error"))
+                .when(activityRepository).save(any(Activity.class));
+
+        // Act & Assert
+        PersistenceException exception = assertThrows(PersistenceException.class, () -> activityService.updateActivity(activity));
+        assertEquals(PersistenceConstants.PERSISTENCE_EXCEPTION, exception.getMessage());
+    }
+
     private Activity createSampleActivity() {
         Activity activity = new Activity();
         activity.setActivity("Pool Table");
         activity.setCategory("Table Activity");
-        activity.setPrice(4);
+        activity.setPrice("4");
         activity.setImageLocation("/images/sample.jpg");
         activity.setCreatedTime(new Time(System.currentTimeMillis()));
         activity.setCreatedDate(new Date(System.currentTimeMillis()));
