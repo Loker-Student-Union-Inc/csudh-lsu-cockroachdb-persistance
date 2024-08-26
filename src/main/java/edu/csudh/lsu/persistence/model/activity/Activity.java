@@ -37,7 +37,7 @@ public class Activity extends Common {
     @Getter @Setter
     private String category;
 
-    @Column(name = "PRICE", updatable = true)
+    @Column(name = "PRICE", updatable = true, columnDefinition = "TEXT")
     @Getter @Setter
     private String price;   // price for 30 minutes
 
